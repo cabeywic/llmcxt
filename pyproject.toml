@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmcxt"
-version = "0.1.1"
+version = "0.1.2"
 description = "A tool to manage and generate context for Large Language Models from project files"
 readme = "README.md"
 authors = [{ name = "Charaka Abeywickrama", email = "charaka.abeywickrama@gmail.com" }]

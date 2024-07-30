@@ -3,6 +3,7 @@ import json
 import click
 import fnmatch
 import shutil
+import re
 import pyperclip
 from pathlib import Path
 
@@ -81,14 +82,22 @@ class ContextManager:
     def get_context_files(self):
         return list(self.context.keys())
 
-    def generate_context(self):
-        context = click.style(f"Project Root: {self.project_root}\n\n", fg="green", bold=True)
-        context += click.style("Project Structure:\n", fg="cyan", underline=True)
+    def generate_context(self, strip_colors=False):
+        context = f"Project Root: {self.project_root}\n\n"
+        context += "Project Structure:\n"
         context += self.list_structure()
-        context += click.style("\n\nFile Contents:\n", fg="cyan", underline=True)
+        context += "\n\nFile Contents:\n"
         for file_path, content in self.context.items():
-            context += click.style(f"\n--- {file_path} ---\n", fg="yellow", bold=True)
+            context += f"\n--- {file_path} ---\n"
             context += content + "\n"
+        
+        if not strip_colors:
+            context = click.style(context, fg="green", bold=True)
+            context = context.replace("Project Structure:", click.style("Project Structure:", fg="cyan", underline=True))
+            context = context.replace("File Contents:", click.style("File Contents:", fg="cyan", underline=True))
+            for file_path in self.context.keys():
+                context = context.replace(f"--- {file_path} ---", click.style(f"--- {file_path} ---", fg="yellow", bold=True))
+        
         return context
 
     def drop_all(self):
@@ -114,15 +123,9 @@ class ContextManager:
         
         return '\n'.join(structure)
 
-    def generate_context(self):
-        context = click.style(f"Project Root: {self.project_root}\n\n", fg="green", bold=True)
-        context += click.style("Project Structure:\n", fg="cyan", underline=True)
-        context += self.list_structure()
-        context += click.style("\n\nFile Contents:\n", fg="cyan", underline=True)
-        for file_path, content in self.context.items():
-            context += click.style(f"\n--- {file_path} ---\n", fg="yellow", bold=True)
-            context += content + "\n"
-        return context
+def strip_ansi_codes(text):
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
 
 @click.group()
 @click.pass_context
@@ -168,11 +171,13 @@ def remove(ctx, file_paths):
 @click.pass_obj
 def generate(ctx, clipboard):
     """Generate the context of all the files with the metadata of the file structure"""
-    context = ctx.generate_context()
-    click.echo(context)
+    context_with_colors = ctx.generate_context(strip_colors=False)
+    click.echo(context_with_colors)
     
     if clipboard:
-        pyperclip.copy(context)
+        context_without_colors = ctx.generate_context(strip_colors=True)
+        clean_context = strip_ansi_codes(context_without_colors)
+        pyperclip.copy(clean_context)
         click.secho("Context copied to clipboard!", fg="green")
 
 @cli.command()
