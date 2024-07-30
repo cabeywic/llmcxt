@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='llmcxt',
-    version='0.1.0',
+    version='0.1.1',
     author='Charaka Abeywickrama',
     author_email='charaka.abeywickrama@gmail.com',
     description='A tool to manage and generate context for Large Language Models from project files',
@@ -22,6 +22,7 @@ setup(
     python_requires='>=3.6',
     install_requires=[
         'Click',
+        'pyperclip',
     ],
     entry_points={
         'console_scripts': [

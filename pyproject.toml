@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "llmcxt"
-version = "0.1.0"
+version = "0.1.1"
 description = "A tool to manage and generate context for Large Language Models from project files"
 readme = "README.md"
 authors = [{ name = "Charaka Abeywickrama", email = "charaka.abeywickrama@gmail.com" }]
@@ -17,6 +17,7 @@ classifiers = [
 keywords = ["llm", "context", "cli"]
 dependencies = [
     "Click",
+    "pyperclip",
 ]
 requires-python = ">=3.6"
 

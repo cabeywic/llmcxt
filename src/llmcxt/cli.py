@@ -3,6 +3,7 @@ import json
 import click
 import fnmatch
 import shutil
+import pyperclip
 from pathlib import Path
 
 CONFIG_FILE = '.llmcxt_config.json'
@@ -76,6 +77,19 @@ class ContextManager:
                 click.secho(f"File not in context: {file_path}", fg="yellow")
         self.save_config()
         return removed
+    
+    def get_context_files(self):
+        return list(self.context.keys())
+
+    def generate_context(self):
+        context = click.style(f"Project Root: {self.project_root}\n\n", fg="green", bold=True)
+        context += click.style("Project Structure:\n", fg="cyan", underline=True)
+        context += self.list_structure()
+        context += click.style("\n\nFile Contents:\n", fg="cyan", underline=True)
+        for file_path, content in self.context.items():
+            context += click.style(f"\n--- {file_path} ---\n", fg="yellow", bold=True)
+            context += content + "\n"
+        return context
 
     def drop_all(self):
         self.context.clear()
@@ -127,6 +141,10 @@ def add(ctx, file_paths):
             click.echo(f"  - {file}")
     else:
         click.secho("No files were added to the context.", fg="yellow")
+    
+    click.echo("\nCurrent context:")
+    for file in ctx.get_context_files():
+        click.echo(f"  - {file}")
 
 @cli.command()
 @click.argument('file_paths', nargs=-1, required=True)
@@ -140,6 +158,34 @@ def remove(ctx, file_paths):
             click.echo(f"  - {file}")
     else:
         click.secho("No files were removed from the context.", fg="yellow")
+    
+    click.echo("\nCurrent context:")
+    for file in ctx.get_context_files():
+        click.echo(f"  - {file}")
+
+@cli.command()
+@click.option('--clipboard', is_flag=True, help="Copy the generated context to clipboard")
+@click.pass_obj
+def generate(ctx, clipboard):
+    """Generate the context of all the files with the metadata of the file structure"""
+    context = ctx.generate_context()
+    click.echo(context)
+    
+    if clipboard:
+        pyperclip.copy(context)
+        click.secho("Context copied to clipboard!", fg="green")
+
+@cli.command()
+@click.pass_obj
+def context(ctx):
+    """Show the current context (file paths)"""
+    files = ctx.get_context_files()
+    if files:
+        click.secho("Current context:", fg="green")
+        for file in files:
+            click.echo(f"  - {file}")
+    else:
+        click.secho("No files in the current context.", fg="yellow")
 
 @cli.command()
 @click.pass_obj
@@ -154,13 +200,6 @@ def ls(ctx):
     """List the file structure of the project"""
     structure = ctx.list_structure()
     click.echo(structure)
-
-@cli.command()
-@click.pass_obj
-def generate(ctx):
-    """Generate the context of all the files with the metadata of the file structure"""
-    context = ctx.generate_context()
-    click.echo(context)
 
 @cli.command()
 @click.confirmation_option(prompt="Are you sure you want to delete all llmcxt related files and dependencies?")

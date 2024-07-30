@@ -11,6 +11,8 @@ llmcxt is a command-line tool designed to manage and generate context for Large 
 - Ignore files based on .cxtignore or .gitignore patterns
 - Colorized output for better readability
 - Easy cleanup with a delete command
+- Automatically copy generated context to clipboard (optional)
+- View list of files in the current context
 
 ## Installation
 
@@ -44,6 +46,16 @@ After installation, you can use the `llmcxt` command from anywhere in your proje
 - Generate context:
   ```
   llmcxt generate
+  ```
+
+- Generate context and copy to clipboard:
+  ```
+  llmcxt generate --clipboard
+  ```
+
+- View current context (file paths):
+  ```
+  llmcxt context
   ```
 
 - Drop all context:
