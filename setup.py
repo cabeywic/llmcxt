@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='llmcxt',
-    version='0.1.2',
+    version='0.1.3',
     author='Charaka Abeywickrama',
     author_email='charaka.abeywickrama@gmail.com',
     description='A tool to manage and generate context for Large Language Models from project files',
